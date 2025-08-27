@@ -1,0 +1,303 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom color palette for MOSSAE'A with Deep Navy Blues */
+@layer base {
+  :root {
+    --background: 210 40% 8%; /* Deep navy blue background */
+    --foreground: 180 25% 95%;
+
+    --card: 210 40% 12%; /* Darker navy for cards */
+    --card-foreground: 180 25% 95%;
+
+    --popover: 210 40% 10%;
+    --popover-foreground: 180 25% 95%;
+
+    --primary: 200 50% 20%; /* #1f3345 */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 210 40% 15%; /* Deep navy secondary */
+    --secondary-foreground: 180 25% 95%;
+
+    --muted: 210 40% 18%; /* Muted navy */
+    --muted-foreground: 180 20% 70%;
+
+    --accent: 180 100% 40%; /* teal */
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 30% 25%; /* Navy border */
+    --input: 210 40% 15%; /* Dark navy input */
+    --ring: 180 100% 40%;
+
+    --radius: 0.75rem;
+
+    /* Custom colors */
+    --teal: 180 100% 40%;
+    --sky-blue: 200 100% 70%;
+    --cream: 40 100% 90%;
+    --moss-green: 100 30% 40%;
+    --gold: 45 100% 60%;
+    --deep-navy: 210 40% 8%;
+    --navy-light: 210 40% 15%;
+  }
+
+  .dark {
+    --background: 210 50% 5%; /* Even deeper navy for dark mode */
+    --foreground: 180 25% 95%;
+
+    --card: 210 50% 8%;
+    --card-foreground: 180 25% 95%;
+
+    --popover: 210 50% 6%;
+    --popover-foreground: 180 25% 95%;
+
+    --primary: 180 100% 40%;
+    --primary-foreground: 200 50% 5%;
+
+    --secondary: 210 50% 12%;
+    --secondary-foreground: 180 25% 95%;
+
+    --muted: 210 50% 12%;
+    --muted-foreground: 180 20% 65%;
+
+    --accent: 180 100% 40%;
+    --accent-foreground: 200 50% 5%;
+
+    --border: 210 50% 15%;
+    --input: 210 50% 12%;
+    --ring: 180 100% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border transition-colors duration-300;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-all duration-500;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold transition-colors duration-300;
+  }
+}
+
+/* Enhanced Custom animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(180, 255, 255, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(180, 255, 255, 0.6); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes scale-bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Enhanced Custom classes */
+.animate-fade-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.6s ease-out;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-scale-bounce {
+  animation: scale-bounce 0.6s ease-out;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, hsl(var(--teal)), hsl(var(--sky-blue)), hsl(var(--gold)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-effect {
+  background: rgba(33, 51, 69, 0.15);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(180, 255, 255, 0.1);
+  transition: all 0.4s ease;
+}
+
+.glass-effect:hover {
+  background: rgba(33, 51, 69, 0.25);
+  border: 1px solid rgba(180, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Enhanced Reading progress bar */
+.reading-progress {
+  height: 4px;
+  background: linear-gradient(90deg, hsl(var(--teal)), hsl(var(--gold)));
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(180, 255, 255, 0.5);
+}
+
+/* Enhanced Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--deep-navy));
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, hsl(var(--teal)), hsl(var(--sky-blue)));
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, hsl(var(--sky-blue)), hsl(var(--gold)));
+  box-shadow: 0 0 10px rgba(180, 255, 255, 0.3);
+}
+
+/* Enhanced Interactive Elements */
+.card-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(180, 255, 255, 0.1);
+}
+
+.button-glow {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.button-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.button-glow:hover::before {
+  left: 100%;
+}
+
+.nav-link {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--teal)), hsl(var(--gold)));
+  transition: width 0.4s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Deep Navy Background Variants */
+.bg-navy-deep {
+  background-color: hsl(var(--deep-navy));
+}
+
+.bg-navy-light {
+  background-color: hsl(var(--navy-light));
+}
+
+.border-navy {
+  border-color: hsl(210 30% 25%);
+}
+
+/* Staggered Animation Delays */
+.animate-stagger-1 { animation-delay: 0.1s; }
+.animate-stagger-2 { animation-delay: 0.2s; }
+.animate-stagger-3 { animation-delay: 0.3s; }
+.animate-stagger-4 { animation-delay: 0.4s; }
