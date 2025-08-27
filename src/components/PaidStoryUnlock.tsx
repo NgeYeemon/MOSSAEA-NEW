@@ -21,7 +21,7 @@ const PaidStoryUnlock = ({ story, userCoins, onUnlock, onCancel }: PaidStoryUnlo
     setIsUnlocking(true);
     
     try {
-      const result = unlockPaidStory(story.id, userCoins);
+      const result = unlockPaidStory(story.id, userCoins, story);
       
       if (result.success) {
         toast({

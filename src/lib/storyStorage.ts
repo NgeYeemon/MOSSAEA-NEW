@@ -227,18 +227,24 @@ export const getStoryById = (storyId: string): StoredStory | null => {
 };
 
 // Unlock a paid story
-export const unlockPaidStory = (storyId: string, currentCoins: number): { success: boolean; newCoins: number } => {
-  const story = getStoryById(storyId);
+export const unlockPaidStory = (storyId: string, currentCoins: number, story?: StoredStory): { success: boolean; newCoins: number } => {
+  // If story is passed directly (for external stories), use it; otherwise try to find it in written stories
+  let targetStory = story || getStoryById(storyId);
   
-  if (!story || !story.isPaid || story.price === undefined) {
+  if (!targetStory || !targetStory.isPaid || targetStory.price === undefined) {
     return { success: false, newCoins: currentCoins };
   }
   
-  if (currentCoins < story.price) {
+  if (currentCoins < targetStory.price) {
     return { success: false, newCoins: currentCoins };
   }
   
-  // Mark story as unlocked
+  // Mark story as unlocked in global unlock storage
+  const unlockedStories = JSON.parse(localStorage.getItem('unlockedStories') || '{}');
+  unlockedStories[storyId] = true;
+  localStorage.setItem('unlockedStories', JSON.stringify(unlockedStories));
+  
+  // Also mark in written stories if it's user's own story
   const data = getUserStoryData();
   const storyIndex = data.writtenStories.findIndex(s => s.id === storyId);
   if (storyIndex !== -1) {
@@ -247,7 +253,7 @@ export const unlockPaidStory = (storyId: string, currentCoins: number): { succes
   }
   
   // Update user coins
-  const newCoins = currentCoins - story.price;
+  const newCoins = currentCoins - targetStory.price;
   localStorage.setItem('userCoins', newCoins.toString());
   
   return { success: true, newCoins };
@@ -255,6 +261,13 @@ export const unlockPaidStory = (storyId: string, currentCoins: number): { succes
 
 // Check if a story is unlocked
 export const isStoryUnlocked = (storyId: string): boolean => {
+  // Check global unlock storage first
+  const unlockedStories = JSON.parse(localStorage.getItem('unlockedStories') || '{}');
+  if (unlockedStories[storyId]) {
+    return true;
+  }
+  
+  // Check user's written stories
   const story = getStoryById(storyId);
   return !story?.isPaid || story?.isUnlocked === true;
 };
