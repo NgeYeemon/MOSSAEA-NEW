@@ -18,24 +18,34 @@ const PaidStoryUnlock = ({ story, userCoins, onUnlock, onCancel }: PaidStoryUnlo
   const handleUnlock = async () => {
     if (!story.isPaid || !story.price) return;
     
+    // Simple check: do we have enough coins?
+    if (userCoins < story.price) {
+      toast({
+        title: "Not enough coins",
+        description: `You need ${story.price} coins to unlock this story. You have ${userCoins} coins.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsUnlocking(true);
     
     try {
-      const result = unlockPaidStory(story.id, userCoins, story);
+      // Mark story as unlocked
+      const unlockedStories = JSON.parse(localStorage.getItem('unlockedStories') || '{}');
+      unlockedStories[story.id] = true;
+      localStorage.setItem('unlockedStories', JSON.stringify(unlockedStories));
       
-      if (result.success) {
-        toast({
-          title: "Story unlocked!",
-          description: `You can now read "${story.title}" for ${story.price} coins`,
-        });
-        onUnlock(result.newCoins);
-      } else {
-        toast({
-          title: "Not enough coins",
-          description: `You need ${story.price} coins to unlock this story. You have ${userCoins} coins.`,
-          variant: "destructive"
-        });
-      }
+      // Deduct coins
+      const newCoins = userCoins - story.price;
+      localStorage.setItem('userCoins', newCoins.toString());
+      
+      toast({
+        title: "Story unlocked!",
+        description: `You can now read "${story.title}" for ${story.price} coins`,
+      });
+      
+      onUnlock(newCoins);
     } catch (error) {
       toast({
         title: "Error",
@@ -49,7 +59,7 @@ const PaidStoryUnlock = ({ story, userCoins, onUnlock, onCancel }: PaidStoryUnlo
 
   if (!story.isPaid || !story.price) return null;
 
-  const canAfford = userCoins >= story.price;
+  // Always allow clicking the button, we'll check coins in handleUnlock
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -102,7 +112,7 @@ const PaidStoryUnlock = ({ story, userCoins, onUnlock, onCancel }: PaidStoryUnlo
             </Button>
             <Button 
               onClick={handleUnlock}
-              disabled={!canAfford || isUnlocking}
+              disabled={isUnlocking}
               className="flex-1 bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50"
             >
               <Unlock className="w-4 h-4 mr-2" />
@@ -110,11 +120,6 @@ const PaidStoryUnlock = ({ story, userCoins, onUnlock, onCancel }: PaidStoryUnlo
             </Button>
           </div>
 
-          {!canAfford && (
-            <p className="text-red-400 text-sm text-center">
-              You need {story.price - userCoins} more coins to unlock this story.
-            </p>
-          )}
         </CardContent>
       </Card>
     </div>
