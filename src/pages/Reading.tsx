@@ -6,7 +6,7 @@ import ChapterNavigation from '@/components/reading/ChapterNavigation';
 import ChapterSelector from '@/components/reading/ChapterSelector';
 import CommentsPanel from '@/components/reading/CommentsPanel';
 import { Progress } from '@/components/ui/progress';
-import { getStoryById, StoredStory, isStoryUnlocked, getStoryChapterContent } from '@/lib/storyStorage';
+import { getStoryById, StoredStory, isStoryUnlocked, getStoryChapterContent, saveReadingProgress, getReadingProgress } from '@/lib/storyStorage';
 import PaidStoryUnlock from '@/components/PaidStoryUnlock';
 import { toast } from '@/hooks/use-toast';
 
@@ -19,8 +19,6 @@ const Reading = () => {
   const [newComment, setNewComment] = useState('');
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [userCoins, setUserCoins] = useState(0);
   const [story, setStory] = useState<StoredStory | null>(null);
@@ -73,16 +71,19 @@ const Reading = () => {
     
     // Get story from location state or ID
     const stateData = location.state as { story?: StoredStory; storyId?: string };
+    let currentStory: StoredStory | null = null;
     
     if (stateData?.story) {
       setStory(stateData.story);
+      currentStory = stateData.story;
     } else if (stateData?.storyId) {
       const foundStory = getStoryById(stateData.storyId);
       if (foundStory) {
         setStory(foundStory);
+        currentStory = foundStory;
       } else {
         // Fallback to default mock story
-        setStory({
+        const fallbackStory = {
           id: '1',
           title: 'The Midnight Chronicles',
           author: 'Elena Rodriguez',
@@ -94,11 +95,13 @@ const Reading = () => {
           rating: 4.8,
           chapters: 2,
           createdAt: new Date().toISOString()
-        });
+        };
+        setStory(fallbackStory);
+        currentStory = fallbackStory;
       }
     } else {
       // Default fallback story
-      setStory({
+      const fallbackStory = {
         id: '1',
         title: 'The Midnight Chronicles',
         author: 'Elena Rodriguez',
@@ -110,19 +113,36 @@ const Reading = () => {
         rating: 4.8,
         chapters: 2,
         createdAt: new Date().toISOString()
-      });
+      };
+      setStory(fallbackStory);
+      currentStory = fallbackStory;
+    }
+
+    // Load saved reading progress
+    if (currentStory) {
+      const progress = getReadingProgress(currentStory.id);
+      if (progress) {
+        setCurrentChapter(progress.currentChapter);
+        setReadingProgress(progress.progressPercentage);
+      }
     }
   }, [location.state]);
 
-  // Calculate reading progress based on scroll position
+  // Calculate reading progress based on scroll position and save it
   useEffect(() => {
     const handleScroll = () => {
-      if (contentRef.current) {
+      if (contentRef.current && story) {
         const element = contentRef.current;
         const scrollTop = element.scrollTop;
         const scrollHeight = element.scrollHeight - element.clientHeight;
         const progress = (scrollTop / scrollHeight) * 100;
-        setReadingProgress(Math.min(100, Math.max(0, progress)));
+        const newProgress = Math.min(100, Math.max(0, progress));
+        setReadingProgress(newProgress);
+        
+        // Save reading progress every few percent to avoid excessive writes
+        if (Math.abs(newProgress - readingProgress) > 5) {
+          saveReadingProgress(story.id, currentChapter, newProgress);
+        }
       }
     };
 
@@ -131,7 +151,7 @@ const Reading = () => {
       contentElement.addEventListener('scroll', handleScroll);
       return () => contentElement.removeEventListener('scroll', handleScroll);
     }
-  }, []);
+  }, [story, currentChapter, readingProgress]);
 
   const chapterContent = {
     1: {
@@ -299,15 +319,23 @@ Professor Blackwood was waiting for her, silhouetted against the dying light. In
 
   const nextChapter = () => {
     if (currentChapter < (story?.chapters || 2)) {
-      setCurrentChapter(currentChapter + 1);
+      const newChapter = currentChapter + 1;
+      setCurrentChapter(newChapter);
       setReadingProgress(0);
+      if (story) {
+        saveReadingProgress(story.id, newChapter, 0);
+      }
     }
   };
 
   const prevChapter = () => {
     if (currentChapter > 1) {
-      setCurrentChapter(currentChapter - 1);
+      const newChapter = currentChapter - 1;
+      setCurrentChapter(newChapter);
       setReadingProgress(0);
+      if (story) {
+        saveReadingProgress(story.id, newChapter, 0);
+      }
     }
   };
 
@@ -320,6 +348,9 @@ Professor Blackwood was waiting for her, silhouetted against the dying light. In
     
     setCurrentChapter(chapter);
     setReadingProgress(0);
+    if (story) {
+      saveReadingProgress(story.id, chapter, 0);
+    }
   };
 
   const handleUnlockStory = (newCoins: number) => {
@@ -368,12 +399,8 @@ Professor Blackwood was waiting for her, silhouetted against the dying light. In
         title={story?.title || "The Midnight Chronicles"}
         author={story?.author || "Elena Rodriguez"}
         showComments={showComments}
-        isLiked={isLiked}
-        isBookmarked={isBookmarked}
         onBack={() => navigate('/')}
         onToggleComments={() => setShowComments(!showComments)}
-        onToggleLike={() => setIsLiked(!isLiked)}
-        onToggleBookmark={() => setIsBookmarked(!isBookmarked)}
       />
 
       {/* Reading Progress Bar */}

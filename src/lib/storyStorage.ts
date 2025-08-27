@@ -411,3 +411,39 @@ export const updateAuthorStats = (authorName: string, action: 'follow' | 'unfoll
     localStorage.setItem(FOLLOWING_AUTHORS_KEY, JSON.stringify(following));
   }
 };
+
+// Reading progress tracking
+export interface ReadingProgress {
+  storyId: string;
+  currentChapter: number;
+  progressPercentage: number;
+  lastReadAt: string;
+}
+
+const READING_PROGRESS_KEY = 'readingProgress';
+
+// Save reading progress for a story
+export const saveReadingProgress = (storyId: string, chapter: number, progressPercentage: number): void => {
+  const allProgress = JSON.parse(localStorage.getItem(READING_PROGRESS_KEY) || '{}');
+  
+  allProgress[storyId] = {
+    storyId,
+    currentChapter: chapter,
+    progressPercentage: Math.round(progressPercentage),
+    lastReadAt: new Date().toISOString()
+  };
+  
+  localStorage.setItem(READING_PROGRESS_KEY, JSON.stringify(allProgress));
+};
+
+// Get reading progress for a story
+export const getReadingProgress = (storyId: string): ReadingProgress | null => {
+  const allProgress = JSON.parse(localStorage.getItem(READING_PROGRESS_KEY) || '{}');
+  return allProgress[storyId] || null;
+};
+
+// Get all reading progress
+export const getAllReadingProgress = (): ReadingProgress[] => {
+  const allProgress = JSON.parse(localStorage.getItem(READING_PROGRESS_KEY) || '{}');
+  return Object.values(allProgress);
+};

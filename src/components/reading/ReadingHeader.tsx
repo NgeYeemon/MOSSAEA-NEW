@@ -1,30 +1,22 @@
 
 import React from 'react';
-import { ArrowLeft, MessageSquare, Heart, Bookmark, Settings } from 'lucide-react';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ReadingHeaderProps {
   title: string;
   author: string;
   showComments: boolean;
-  isLiked: boolean;
-  isBookmarked: boolean;
   onBack: () => void;
   onToggleComments: () => void;
-  onToggleLike: () => void;
-  onToggleBookmark: () => void;
 }
 
 const ReadingHeader = ({ 
   title, 
   author, 
   showComments, 
-  isLiked,
-  isBookmarked,
   onBack, 
-  onToggleComments,
-  onToggleLike,
-  onToggleBookmark
+  onToggleComments
 }: ReadingHeaderProps) => {
   return (
     <header className="sticky top-0 z-50 border-b bg-black/20 backdrop-blur">
@@ -49,29 +41,6 @@ const ReadingHeader = ({
             onClick={onToggleComments}
           >
             <MessageSquare className="w-4 h-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`text-white hover:bg-white/10 transition-all duration-300 ${
-              isLiked ? 'bg-red-500/30 text-red-300 shadow-lg shadow-red-500/20' : ''
-            }`}
-            onClick={onToggleLike}
-          >
-            <Heart className={`w-4 h-4 transition-all duration-300 ${isLiked ? 'fill-current scale-110' : ''}`} />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`text-white hover:bg-white/10 transition-all duration-300 ${
-              isBookmarked ? 'bg-cyan-500/30 text-cyan-300 shadow-lg shadow-cyan-500/20' : ''
-            }`}
-            onClick={onToggleBookmark}
-          >
-            <Bookmark className={`w-4 h-4 transition-all duration-300 ${isBookmarked ? 'fill-current scale-110' : ''}`} />
-          </Button>
-          <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-            <Settings className="w-4 h-4" />
           </Button>
         </div>
       </div>
