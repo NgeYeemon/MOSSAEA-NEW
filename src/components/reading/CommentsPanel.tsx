@@ -34,6 +34,7 @@ interface CommentsPanelProps {
   onSetReplyTo: (commentId: number | null) => void;
   onReplyTextChange: (text: string) => void;
   onSubmitReply: (commentId: number) => void;
+  onLikeComment: (commentId: number, isReply?: boolean, parentCommentId?: number) => void;
 }
 
 const CommentsPanel = ({
@@ -45,7 +46,8 @@ const CommentsPanel = ({
   onAddComment,
   onSetReplyTo,
   onReplyTextChange,
-  onSubmitReply
+  onSubmitReply,
+  onLikeComment
 }: CommentsPanelProps) => {
   return (
     <div className="fixed right-0 top-16 bottom-0 w-96 bg-black/40 backdrop-blur border-l border-white/20 overflow-hidden z-40">
@@ -78,6 +80,7 @@ const CommentsPanel = ({
                 onSetReplyTo={onSetReplyTo}
                 onReplyTextChange={onReplyTextChange}
                 onSubmitReply={onSubmitReply}
+                onLikeComment={onLikeComment}
               />
             ))}
           </div>

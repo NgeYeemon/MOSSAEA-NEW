@@ -31,6 +31,7 @@ interface CommentItemProps {
   onSetReplyTo: (commentId: number | null) => void;
   onReplyTextChange: (text: string) => void;
   onSubmitReply: (commentId: number) => void;
+  onLikeComment: (commentId: number, isReply?: boolean, parentCommentId?: number) => void;
 }
 
 const CommentItem = ({ 
@@ -39,7 +40,8 @@ const CommentItem = ({
   replyText, 
   onSetReplyTo, 
   onReplyTextChange, 
-  onSubmitReply 
+  onSubmitReply,
+  onLikeComment
 }: CommentItemProps) => {
   return (
     <Card className="bg-white/10 border-white/20">
@@ -58,7 +60,12 @@ const CommentItem = ({
               </div>
               <p className="text-sm mb-2 text-white/90">{comment.comment}</p>
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm" className="h-6 px-2 text-white/60 hover:bg-white/10">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-white/60 hover:bg-white/10 hover:text-red-400"
+                  onClick={() => onLikeComment(comment.id)}
+                >
                   <ThumbsUp className="w-3 h-3 mr-1" />
                   {comment.likes}
                 </Button>
@@ -109,7 +116,12 @@ const CommentItem = ({
                       <span className="text-xs text-white/60">{reply.timestamp}</span>
                     </div>
                     <p className="text-xs mb-1 text-white/90">{reply.comment}</p>
-                    <Button variant="ghost" size="sm" className="h-5 px-1 text-xs text-white/60 hover:bg-white/10">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-5 px-1 text-xs text-white/60 hover:bg-white/10 hover:text-red-400"
+                      onClick={() => onLikeComment(reply.id, true, comment.id)}
+                    >
                       <ThumbsUp className="w-2 h-2 mr-1" />
                       {reply.likes}
                     </Button>

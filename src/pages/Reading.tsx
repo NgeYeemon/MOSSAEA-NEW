@@ -8,6 +8,7 @@ import CommentsPanel from '@/components/reading/CommentsPanel';
 import { Progress } from '@/components/ui/progress';
 import { getStoryById, StoredStory, isStoryUnlocked, getStoryChapterContent } from '@/lib/storyStorage';
 import PaidStoryUnlock from '@/components/PaidStoryUnlock';
+import { toast } from '@/hooks/use-toast';
 
 const Reading = () => {
   const navigate = useNavigate();
@@ -25,6 +26,46 @@ const Reading = () => {
   const [story, setStory] = useState<StoredStory | null>(null);
   const [showPaidUnlock, setShowPaidUnlock] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Initialize comments state
+  const [comments, setComments] = useState([
+    {
+      id: 1,
+      user: 'BookLover23',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
+      comment: 'This is such an amazing start! I love how Luna discovers her powers.',
+      likes: 12,
+      timestamp: '2 hours ago',
+      replies: [
+        {
+          id: 11,
+          user: 'FantasyFan',
+          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face',
+          comment: 'I totally agree! The time manipulation concept is so unique.',
+          likes: 3,
+          timestamp: '1 hour ago'
+        }
+      ]
+    },
+    {
+      id: 2,
+      user: 'FantasyFan',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face',
+      comment: 'The Order of Midnight sounds so mysterious! Can\'t wait to learn more.',
+      likes: 8,
+      timestamp: '4 hours ago',
+      replies: []
+    },
+    {
+      id: 3,
+      user: 'TimeReader',
+      avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=40&h=40&fit=crop&crop=face',
+      comment: 'The way you describe Luna\'s emotions is so realistic. I can feel her confusion and fear.',
+      likes: 15,
+      timestamp: '6 hours ago',
+      replies: []
+    }
+  ]);
 
   useEffect(() => {
     const coins = localStorage.getItem('userCoins') || '0';
@@ -179,60 +220,81 @@ Professor Blackwood was waiting for her, silhouetted against the dying light. In
     }
   };
 
-  const comments = [
-    {
-      id: 1,
-      user: 'BookLover23',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
-      comment: 'This is such an amazing start! I love how Luna discovers her powers.',
-      likes: 12,
-      timestamp: '2 hours ago',
-      replies: [
-        {
-          id: 11,
-          user: 'FantasyFan',
-          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face',
-          comment: 'I totally agree! The time manipulation concept is so unique.',
-          likes: 3,
-          timestamp: '1 hour ago'
-        }
-      ]
-    },
-    {
-      id: 2,
-      user: 'FantasyFan',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face',
-      comment: 'The Order of Midnight sounds so mysterious! Can\'t wait to learn more.',
-      likes: 8,
-      timestamp: '4 hours ago',
-      replies: []
-    },
-    {
-      id: 3,
-      user: 'TimeReader',
-      avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=40&h=40&fit=crop&crop=face',
-      comment: 'The way you describe Luna\'s emotions is so realistic. I can feel her confusion and fear.',
-      likes: 15,
-      timestamp: '6 hours ago',
-      replies: []
-    }
-  ];
-
   const handleAddComment = () => {
     if (newComment.trim()) {
-      console.log('Adding comment:', newComment);
+      const newCommentObj = {
+        id: Math.max(...comments.map(c => c.id)) + 1,
+        user: 'You',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&crop=face',
+        comment: newComment,
+        likes: 0,
+        timestamp: 'just now',
+        replies: []
+      };
+      
+      setComments([newCommentObj, ...comments]);
       setNewComment('');
-      alert('Comment added!');
+      
+      toast({
+        title: "Comment posted!",
+        description: "Your comment has been added to the discussion.",
+      });
     }
   };
 
   const handleReply = (commentId: number) => {
     if (replyText.trim()) {
-      console.log('Adding reply to comment', commentId, ':', replyText);
+      const newReply = {
+        id: Math.max(...comments.flatMap(c => [c.id, ...c.replies.map(r => r.id)])) + 1,
+        user: 'You',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&crop=face',
+        comment: replyText,
+        likes: 0,
+        timestamp: 'just now'
+      };
+      
+      setComments(comments.map(comment => 
+        comment.id === commentId 
+          ? { ...comment, replies: [...comment.replies, newReply] }
+          : comment
+      ));
+      
       setReplyText('');
       setReplyTo(null);
-      alert('Reply added!');
+      
+      toast({
+        title: "Reply posted!",
+        description: "Your reply has been added to the comment.",
+      });
     }
+  };
+
+  const handleLikeComment = (commentId: number, isReply: boolean = false, parentCommentId?: number) => {
+    if (isReply && parentCommentId) {
+      setComments(comments.map(comment => 
+        comment.id === parentCommentId
+          ? {
+              ...comment,
+              replies: comment.replies.map(reply =>
+                reply.id === commentId
+                  ? { ...reply, likes: reply.likes + 1 }
+                  : reply
+              )
+            }
+          : comment
+      ));
+    } else {
+      setComments(comments.map(comment => 
+        comment.id === commentId 
+          ? { ...comment, likes: comment.likes + 1 }
+          : comment
+      ));
+    }
+    
+    toast({
+      title: "Liked!",
+      description: "You liked this comment.",
+    });
   };
 
   const nextChapter = () => {
@@ -364,6 +426,7 @@ Professor Blackwood was waiting for her, silhouetted against the dying light. In
             onSetReplyTo={setReplyTo}
             onReplyTextChange={setReplyText}
             onSubmitReply={handleReply}
+            onLikeComment={handleLikeComment}
           />
         )}
       </div>
